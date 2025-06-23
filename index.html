@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Container Renderer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      touch-action: manipulation;
+    }
+    .container, .branch-item {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 15px;
+      margin: 8px 0;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .branch-item {
+      background: #f5f5f5;
+      cursor: pointer;
+    }
+    .container {
+      cursor: pointer;
+    }
+    /* Only non-leaf containers react on touch and hover */
+    .container:not(.leaf):hover, .branch-item:hover,
+    .container:not(.leaf):active, .branch-item:active {
+      background: #eaeaea;
+    }
+    /* Leaf containers have same background as ancestors and no pointer events */
+    .container.leaf {
+      background: #f5f5f5;
+      cursor: default;
+      pointer-events: none;
+    }
+    .leaf-indicator {
+      font-size: 0.9em;
+      color: #888;
+      margin-left: auto;
+      font-style: italic;
+    }
+    h2, h4 {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    // Top-level containers (static)
+    const data = [
+      { title: "Container A", subtitle: "Level 1" },
+      { title: "Container B", subtitle: "Level 1" },
+      { title: "Container C", subtitle: "Level 1" }
+    ];
+
+    // Track current path of selected containers
+    let path = [];
+    const app = document.getElementById('app');
+    const INDENT_SIZE = 20; // pixels per level
+    const EVENT = 'pointerup'; // supports mouse, touch, pen
+
+    /**
+     * Generates a random number (0–3) of child containers for a given parent.
+     */
+    function generateChildren(parent) {
+      const maxChildren = 3;
+      const count = Math.floor(Math.random() * (maxChildren + 1));
+      const depth = path.length + 1;
+      const children = [];
+      for (let i = 0; i < count; i++) {
+        children.push({
+          title: `${parent.title}.${i + 1}`,
+          subtitle: `Level ${depth + 1} - dynamically generated`
+        });
+      }
+      return children;
+    }
+
+    /**
+     * Renders the branch and current-level containers.
+     */
+    function render(containers) {
+      app.innerHTML = '';
+
+      // Root link
+      const rootDiv = document.createElement('div');
+      rootDiv.className = 'branch-item';
+      rootDiv.textContent = 'Root';
+      rootDiv.style.marginLeft = '0px';
+      rootDiv.addEventListener(EVENT, () => {
+        path = [];
+        render(data);
+      });
+      app.appendChild(rootDiv);
+
+      // Ancestors
+      path.forEach((node, idx) => {
+        const div = document.createElement('div');
+        div.className = 'branch-item';
+        div.textContent = node.title;
+        div.style.marginLeft = `${(idx + 1) * INDENT_SIZE}px`;
+        div.addEventListener(EVENT, () => {
+          path = path.slice(0, idx + 1);
+          render(node.children || []);
+        });
+        app.appendChild(div);
+      });
+
+      // Current level containers
+      containers.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'container';
+        div.style.marginLeft = `${(path.length + 1) * INDENT_SIZE}px`;
+
+        const textContainer = document.createElement('div');
+        textContainer.style.flex = '1';
+
+        const title = document.createElement('h2');
+        title.textContent = item.title;
+        textContainer.appendChild(title);
+
+        const subtitle = document.createElement('h4');
+        subtitle.textContent = item.subtitle;
+        textContainer.appendChild(subtitle);
+
+        div.appendChild(textContainer);
+
+        // Lazy-generate children
+        if (!('children' in item)) {
+          item.children = generateChildren(item);
+        }
+
+        // Leaf nodes
+        if (item.children.length === 0) {
+          div.classList.add('leaf');
+          const leafSpan = document.createElement('span');
+          leafSpan.className = 'leaf-indicator';
+          leafSpan.textContent = 'Leaf';
+          div.appendChild(leafSpan);
+        } else {
+          div.addEventListener(EVENT, () => {
+            path.push(item);
+            render(item.children);
+          });
+        }
+
+        app.appendChild(div);
+      });
+    }
+
+    // Initial render
+    render(data);
+  </script>
+</body>
+</html>
