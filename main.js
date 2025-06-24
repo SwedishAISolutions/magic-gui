@@ -1,9 +1,9 @@
-import { DummyData1 } from "./dummyData1.js";
+import { theData } from "./dummyData1.js";
 
 // Build lookup
 const nodesById = new Map();
-DummyData1.nodes.forEach(n => nodesById.set(n.id, { ...n, children: [], parents: [] }));
-DummyData1.edges.forEach(e => {
+theData.nodes.forEach(n => nodesById.set(n.id, { ...n, children: [], parents: [] }));
+theData.edges.forEach(e => {
   const p = nodesById.get(e.parent);
   const c = nodesById.get(e.child);
   if (p && c) { p.children.push(c); c.parents.push(p); }

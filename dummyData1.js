@@ -1,4 +1,4 @@
-export const DummyData1 = {
+export const theData = {
       nodes: [
         { id: "Nav_1", fields: { label: "Nav_1", listDirection: "H", recursiveChildren: false, alwaysRender: false } },
         { id: "Nav_2", fields: { label: "Nav_2", listDirection: "H", recursiveChildren: false, alwaysRender: false } },
