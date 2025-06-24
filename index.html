@@ -1,130 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dynamic Container Renderer</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Graph Renderer</title>
   <style>
-    html, body { margin: 0; padding: 0; height: 100%; }
-    body { display: flex; font-family: Arial, sans-serif; }
-    #app { display: flex; flex-direction: row; width: 100vw; height: 100vh; overflow: hidden; }
-
-    /* Level containers */
-    .level { display: flex; overflow: auto; }
-    .level.vertical { flex-direction: column; }
-    .level.horizontal { flex-direction: row; }
-
-    /* Ancestor levels: shrink only in main axis, stretch cross-axis */
-    .level.vertical.ancestor {
-      flex: 0 1 auto;  /* shrink width only */
-      height: 100%;    /* stretch full height */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
     }
-    .level.horizontal.ancestor {
-      flex: 0 1 auto;  /* shrink height only */
-      width: 100%;     /* stretch full width */
-    }
-
-    /* Bottom level: fill remaining space equally */
-    .level.bottom.vertical,
-    .level.bottom.horizontal {
-      flex: 1;
-      display: flex;
-      justify-content: space-evenly;
-      align-items: stretch;
-    }
-    .level.bottom .container {
-      flex: 1;
-      margin: 4px;
-    }
-
-    /* Container styles */
-    .container {
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 10px;
-      margin: 4px;
+    #app {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      background: #e0f0ff;
-      cursor: pointer;
-      white-space: nowrap;
+      width: 100%;
+      height: 100%;
     }
-    .level.horizontal .container { background: #e0ffe0; }
-    .container.selected { border: 3px solid #000; }
-    .container.leaf { pointer-events: none; opacity: 0.6; }
-    .leaf-indicator { margin-top: 4px; font-style: italic; color: #666; }
-
-    h2 { margin: 0; font-size: 1em; }
-    h4 { margin: 4px 0 0; font-size: 0.9em; }
+    .level-container {
+      display: flex;
+      box-sizing: border-box;
+      align-items: stretch;
+    }
+    .box {
+      flex: 1 1 auto;
+      min-width: 50px;
+      min-height: 50px;
+      margin: 10px;
+      padding: 5px;
+      border: 1px solid #333;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s, font-size 0.2s;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    .box:hover {
+      background: rgba(0,0,0,0.05);
+    }
+    /* Disable hover effect on non-clickable (leaf) boxes */
+    .box.no-hover:hover {
+      background: none;
+    }
+    .box.selected-parent {
+      border: 2px solid #007BFF;
+    }
   </style>
 </head>
 <body>
   <div id="app"></div>
   <script>
-    const data = [
-      { title: 'Container A', subtitle: 'Level 1', layout: 'vertical' },
-      { title: 'Container B', subtitle: 'Level 1', layout: 'vertical' },
-      { title: 'Container C', subtitle: 'Level 1', layout: 'vertical' }
-    ];
-    const EVENT = 'pointerup';
+    const DummyData1 = {
+      nodes: [
+        { id: "Nav_1", fields: { label: "Nav_1", listDirection: "H", recursiveChildren: false } },
+        { id: "Nav_2", fields: { label: "Nav_2", listDirection: "H", recursiveChildren: false } },
+        { id: "Nav_3", fields: { label: "Nav_3", listDirection: "H", recursiveChildren: false } },
+        { id: "Nav_4", fields: { label: "Nav_4", listDirection: "H", recursiveChildren: false } },
+        { id: "Nav_5", fields: { label: "Nav_5", listDirection: "H", recursiveChildren: false } },
+        { id: "Nav_6", fields: { label: "Nav_6", listDirection: "H", recursiveChildren: false } },
+        { id: "Nav_7", fields: { label: "Nav_7", listDirection: "H", recursiveChildren: false } },
+        { id: "Nav_8", fields: { label: "Nav_8", listDirection: "H", recursiveChildren: false } },
+        { id: "Nav_9", fields: { label: "Nav_9", listDirection: "H", recursiveChildren: false } },
+        { id: "Kanban_1", fields: { label: "Kanban_1", listDirection: "V", recursiveChildren: false } },
+        { id: "Kanban_2", fields: { label: "Kanban_2", listDirection: "V", recursiveChildren: false } },
+        { id: "Kanban_3", fields: { label: "Kanban_3", listDirection: "V", recursiveChildren: false } },
+        { id: "Kanban_4", fields: { label: "Kanban_4", listDirection: "V", recursiveChildren: false } },
+        { id: "Kanban_5", fields: { label: "Kanban_5", listDirection: "V", recursiveChildren: false } },
+        { id: "Tender_1", fields: { label: "Tender_1", listDirection: "H", recursiveChildren: false } },
+        { id: "Tender_2", fields: { label: "Tender_2", listDirection: "H", recursiveChildren: false } },
+        { id: "Tender_3", fields: { label: "Tender_3", listDirection: "H", recursiveChildren: false } },
+        { id: "Tender_4", fields: { label: "Tender_4", listDirection: "H", recursiveChildren: false } },
+        { id: "Tender_5", fields: { label: "Tender_5", listDirection: "H", recursiveChildren: false } },
+        { id: "Tender_6", fields: { label: "Tender_6", listDirection: "H", recursiveChildren: false } },
+        { id: "Tender_7", fields: { label: "Tender_7", listDirection: "H", recursiveChildren: false } },
+        { id: "Tender_8", fields: { label: "Tender_8", listDirection: "H", recursiveChildren: false } },
+        { id: "Tender_9", fields: { label: "Tender_9", listDirection: "H", recursiveChildren: false } },
+        { id: "Tender_10", fields: { label: "Tender_10", listDirection: "H", recursiveChildren: false } },
+        { id: "Tender_11", fields: { label: "Tender_11", listDirection: "H", recursiveChildren: false } },
+        { id: "Tender_12", fields: { label: "Tender_12", listDirection: "H", recursiveChildren: false } },
+        { id: "Not started", fields: { label: "Not started", listDirection: "V", recursiveChildren: false } },
+        { id: "Authoring", fields: { label: "Authoring", listDirection: "V", recursiveChildren: false } },
+        { id: "Review", fields: { label: "Review", listDirection: "V", recursiveChildren: false } },
+        { id: "Submitted", fields: { label: "Submitted", listDirection: "V", recursiveChildren: false } },
+        { id: "Project ABC", fields: { label: "Project ABC", listDirection: "H", recursiveChildren: false } },
+        { id: "Project DEF", fields: { label: "Project DEF", listDirection: "H", recursiveChildren: false } },
+        { id: "Project GHI", fields: { label: "Project GHI", listDirection: "H", recursiveChildren: false } },
+        { id: "Project JKL", fields: { label: "Project JKL", listDirection: "H", recursiveChildren: false } }
+      ],
+      edges: [
+        { parent: "Nav_1", child: "Kanban_1" },
+        { parent: "Nav_1", child: "Kanban_2" },
+        { parent: "Nav_1", child: "Kanban_3" },
+        { parent: "Nav_1", child: "Kanban_4" },
+        { parent: "Nav_1", child: "Kanban_5" },
+        { parent: "Kanban_1", child: "Tender_1" },
+        { parent: "Kanban_1", child: "Tender_2" },
+        { parent: "Kanban_1", child: "Tender_3" },
+        { parent: "Kanban_1", child: "Tender_4" },
+        { parent: "Kanban_1", child: "Tender_5" },
+        { parent: "Kanban_1", child: "Tender_6" },
+        { parent: "Kanban_1", child: "Tender_7" },
+        { parent: "Kanban_1", child: "Tender_8" },
+        { parent: "Kanban_1", child: "Tender_9" },
+        { parent: "Kanban_1", child: "Tender_10" },
+        { parent: "Kanban_1", child: "Tender_11" },
+        { parent: "Kanban_1", child: "Tender_12" },
+        { parent: "Nav_2", child: "Not started" },
+        { parent: "Nav_2", child: "Authoring" },
+        { parent: "Nav_2", child: "Review" },
+        { parent: "Nav_2", child: "Submitted" },
+        { parent: "Not started", child: "Project ABC" },
+        { parent: "Authoring", child: "Project DEF" },
+        { parent: "Authoring", child: "Project GHI" },
+        { parent: "Authoring", child: "Project JKL" }
+      ]
+    };
+    const nodesById = new Map();
+    DummyData1.nodes.forEach(n => nodesById.set(n.id, { ...n, children: [], parents: [] }));
+    DummyData1.edges.forEach(e => {
+      const p = nodesById.get(e.parent);
+      const c = nodesById.get(e.child);
+      if (p && c) { p.children.push(c); c.parents.push(p); }
+    });
+    const rootNodes = Array.from(nodesById.values()).filter(n => n.parents.length === 0);
+    let selectedNode = null;
     const app = document.getElementById('app');
-    let path = [];
-
-    function generateChildren(parent) {
-      const count = Math.floor(Math.random() * 4);
-      const depth = (parent._depth || 0) + 1;
-      return Array.from({ length: count }, (_, i) => ({
-        title: `${parent.title}.${i+1}`,
-        subtitle: `Level ${depth+1}`,
-        layout: 'vertical',
-        _depth: depth
-      }));
-    }
-
-    function createContainer(item) {
-      const div = document.createElement('div');
-      div.className = 'container';
-      if (item._selected) div.classList.add('selected');
-      if (!item.children) item.children = generateChildren(item);
-      if (item.children.length === 0) div.classList.add('leaf');
-      const h2 = document.createElement('h2'); h2.textContent = item.title; div.appendChild(h2);
-      const h4 = document.createElement('h4'); h4.textContent = item.subtitle; div.appendChild(h4);
-      if (item.children.length === 0) {
-        const leaf = document.createElement('div'); leaf.className = 'leaf-indicator'; leaf.textContent = 'Leaf'; div.appendChild(leaf);
-      } else {
-        div.addEventListener(EVENT, () => {
-          const depth = item._depth;
-          path = path.slice(0, depth);
-          path.push(item);
-          function clearAll(arr) { arr.forEach(x => { delete x._selected; if (x.children) clearAll(x.children); }); }
-          clearAll(data);
-          path.forEach(p => p._selected = true);
-          render();
-        });
-      }
-      return div;
-    }
-
-    function render() {
+    function renderAll() {
       app.innerHTML = '';
-      const levels = [data];
-      path.forEach(node => levels.push(node.children));
-      levels.forEach((items, idx) => {
-        const isAncestor = idx < levels.length - 1;
-        const isBottom = !isAncestor;
-        // Determine layout: root uses data[0].layout, others use parent layout
-        const layout = idx === 0 ? data[0].layout : path[idx - 1].layout;
+      const levels = [];
+      if (selectedNode) {
+        const ancestors = [];
+        let cur = selectedNode;
+        while (true) {
+          ancestors.unshift(cur);
+          if (cur.parents.length === 0) break;
+          cur = cur.parents[0];
+        }
+        levels.push({ nodes: rootNodes, parent: null });
+        for (let i = 1; i < ancestors.length; i++) {
+          const parent = ancestors[i].parents[0] || null;
+          const nodes = parent ? parent.children : rootNodes;
+          levels.push({ nodes, parent });
+        }
+        levels.push({ nodes: selectedNode.children, parent: selectedNode });
+      } else {
+        levels.push({ nodes: rootNodes, parent: null });
+      }
+      const levelDivs = [];
+      levels.forEach((lvlData, idx) => {
+        const { nodes, parent } = lvlData;
+        const dir = parent?.fields.listDirection || 'H';
         const lvl = document.createElement('div');
-        lvl.classList.add('level', layout);
-        if (isAncestor) lvl.classList.add('ancestor'); else lvl.classList.add('bottom');
-        items.forEach(item => lvl.appendChild(createContainer(item)));
+        lvl.className = 'level-container';
+        lvl.style.flexDirection = dir === 'H' ? 'row' : 'column';
+        if (idx === levels.length - 1) {
+          lvl.style.flex = '1 1 auto';
+          lvl.style.alignSelf = 'stretch';
+        } else {
+          lvl.style.flex = '0 0 auto';
+          lvl.style.alignSelf = dir === 'V' ? 'flex-start' : 'stretch';
+        }
+        lvl.style.overflowX = dir === 'H' ? 'auto' : 'hidden';
+        lvl.style.overflowY = dir === 'V' ? 'auto' : 'hidden';
+        nodes.forEach(node => {
+          const box = document.createElement('div');
+          box.className = 'box';
+          box.dataset.nodeId = node.id;
+          box.textContent = node.fields.label;
+          if (node.children.length > 0) {
+            box.addEventListener('click', () => { selectedNode = node; renderAll(); });
+          } else {
+            box.style.cursor = 'default';
+            box.classList.add('no-hover');
+          }
+          lvl.appendChild(box);
+        });
+        levelDivs.push({ div: lvl, parent });
         app.appendChild(lvl);
       });
+      levelDivs.forEach((lvlObj, idx) => {
+        const { div, parent } = lvlObj;
+        if (parent && idx > 0) {
+          const prevDiv = levelDivs[idx - 1].div;
+          const selBox = prevDiv.querySelector(`[data-node-id="${parent.id}"]`);
+          if (selBox) selBox.classList.add('selected-parent');
+        }
+      });
     }
-
-    render();
+    window.addEventListener('DOMContentLoaded', () => renderAll());
   </script>
 </body>
 </html>
