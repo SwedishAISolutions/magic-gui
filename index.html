@@ -1,163 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dynamic Container Renderer</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      touch-action: manipulation;
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body { display: flex; font-family: Arial, sans-serif; }
+    #app { display: flex; flex-direction: row; width: 100vw; height: 100vh; overflow: hidden; }
+
+    /* Level containers */
+    .level { display: flex; overflow: auto; }
+    .level.vertical { flex-direction: column; }
+    .level.horizontal { flex-direction: row; }
+
+    /* Ancestor levels: shrink only in main axis, stretch cross-axis */
+    .level.vertical.ancestor {
+      flex: 0 1 auto;  /* shrink width only */
+      height: 100%;    /* stretch full height */
     }
-    .container, .branch-item {
+    .level.horizontal.ancestor {
+      flex: 0 1 auto;  /* shrink height only */
+      width: 100%;     /* stretch full width */
+    }
+
+    /* Bottom level: fill remaining space equally */
+    .level.bottom.vertical,
+    .level.bottom.horizontal {
+      flex: 1;
+      display: flex;
+      justify-content: space-evenly;
+      align-items: stretch;
+    }
+    .level.bottom .container {
+      flex: 1;
+      margin: 4px;
+    }
+
+    /* Container styles */
+    .container {
       border: 1px solid #ccc;
       border-radius: 4px;
-      padding: 15px;
-      margin: 8px 0;
-      transition: background 0.2s;
+      padding: 10px;
+      margin: 4px;
       display: flex;
-      align-items: center;
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .branch-item {
-      background: #f5f5f5;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      background: #e0f0ff;
       cursor: pointer;
+      white-space: nowrap;
     }
-    .container {
-      cursor: pointer;
-    }
-    /* Only non-leaf containers react on touch and hover */
-    .container:not(.leaf):hover, .branch-item:hover,
-    .container:not(.leaf):active, .branch-item:active {
-      background: #eaeaea;
-    }
-    /* Leaf containers have same background as ancestors and no pointer events */
-    .container.leaf {
-      background: #f5f5f5;
-      cursor: default;
-      pointer-events: none;
-    }
-    .leaf-indicator {
-      font-size: 0.9em;
-      color: #888;
-      margin-left: auto;
-      font-style: italic;
-    }
-    h2, h4 {
-      margin: 5px 0;
-    }
+    .level.horizontal .container { background: #e0ffe0; }
+    .container.selected { border: 3px solid #000; }
+    .container.leaf { pointer-events: none; opacity: 0.6; }
+    .leaf-indicator { margin-top: 4px; font-style: italic; color: #666; }
+
+    h2 { margin: 0; font-size: 1em; }
+    h4 { margin: 4px 0 0; font-size: 0.9em; }
   </style>
 </head>
 <body>
   <div id="app"></div>
-
   <script>
-    // Top-level containers (static)
     const data = [
-      { title: "Container A", subtitle: "Level 1" },
-      { title: "Container B", subtitle: "Level 1" },
-      { title: "Container C", subtitle: "Level 1" }
+      { title: 'Container A', subtitle: 'Level 1', layout: 'vertical' },
+      { title: 'Container B', subtitle: 'Level 1', layout: 'vertical' },
+      { title: 'Container C', subtitle: 'Level 1', layout: 'vertical' }
     ];
-
-    // Track current path of selected containers
-    let path = [];
+    const EVENT = 'pointerup';
     const app = document.getElementById('app');
-    const INDENT_SIZE = 20; // pixels per level
-    const EVENT = 'pointerup'; // supports mouse, touch, pen
+    let path = [];
 
-    /**
-     * Generates a random number (0–3) of child containers for a given parent.
-     */
     function generateChildren(parent) {
-      const maxChildren = 3;
-      const count = Math.floor(Math.random() * (maxChildren + 1));
-      const depth = path.length + 1;
-      const children = [];
-      for (let i = 0; i < count; i++) {
-        children.push({
-          title: `${parent.title}.${i + 1}`,
-          subtitle: `Level ${depth + 1} - dynamically generated`
+      const count = Math.floor(Math.random() * 4);
+      const depth = (parent._depth || 0) + 1;
+      return Array.from({ length: count }, (_, i) => ({
+        title: `${parent.title}.${i+1}`,
+        subtitle: `Level ${depth+1}`,
+        layout: 'vertical',
+        _depth: depth
+      }));
+    }
+
+    function createContainer(item) {
+      const div = document.createElement('div');
+      div.className = 'container';
+      if (item._selected) div.classList.add('selected');
+      if (!item.children) item.children = generateChildren(item);
+      if (item.children.length === 0) div.classList.add('leaf');
+      const h2 = document.createElement('h2'); h2.textContent = item.title; div.appendChild(h2);
+      const h4 = document.createElement('h4'); h4.textContent = item.subtitle; div.appendChild(h4);
+      if (item.children.length === 0) {
+        const leaf = document.createElement('div'); leaf.className = 'leaf-indicator'; leaf.textContent = 'Leaf'; div.appendChild(leaf);
+      } else {
+        div.addEventListener(EVENT, () => {
+          const depth = item._depth;
+          path = path.slice(0, depth);
+          path.push(item);
+          function clearAll(arr) { arr.forEach(x => { delete x._selected; if (x.children) clearAll(x.children); }); }
+          clearAll(data);
+          path.forEach(p => p._selected = true);
+          render();
         });
       }
-      return children;
+      return div;
     }
 
-    /**
-     * Renders the branch and current-level containers.
-     */
-    function render(containers) {
+    function render() {
       app.innerHTML = '';
-
-      // Root link
-      const rootDiv = document.createElement('div');
-      rootDiv.className = 'branch-item';
-      rootDiv.textContent = 'Root';
-      rootDiv.style.marginLeft = '0px';
-      rootDiv.addEventListener(EVENT, () => {
-        path = [];
-        render(data);
-      });
-      app.appendChild(rootDiv);
-
-      // Ancestors
-      path.forEach((node, idx) => {
-        const div = document.createElement('div');
-        div.className = 'branch-item';
-        div.textContent = node.title;
-        div.style.marginLeft = `${(idx + 1) * INDENT_SIZE}px`;
-        div.addEventListener(EVENT, () => {
-          path = path.slice(0, idx + 1);
-          render(node.children || []);
-        });
-        app.appendChild(div);
-      });
-
-      // Current level containers
-      containers.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'container';
-        div.style.marginLeft = `${(path.length + 1) * INDENT_SIZE}px`;
-
-        const textContainer = document.createElement('div');
-        textContainer.style.flex = '1';
-
-        const title = document.createElement('h2');
-        title.textContent = item.title;
-        textContainer.appendChild(title);
-
-        const subtitle = document.createElement('h4');
-        subtitle.textContent = item.subtitle;
-        textContainer.appendChild(subtitle);
-
-        div.appendChild(textContainer);
-
-        // Lazy-generate children
-        if (!('children' in item)) {
-          item.children = generateChildren(item);
-        }
-
-        // Leaf nodes
-        if (item.children.length === 0) {
-          div.classList.add('leaf');
-          const leafSpan = document.createElement('span');
-          leafSpan.className = 'leaf-indicator';
-          leafSpan.textContent = 'Leaf';
-          div.appendChild(leafSpan);
-        } else {
-          div.addEventListener(EVENT, () => {
-            path.push(item);
-            render(item.children);
-          });
-        }
-
-        app.appendChild(div);
+      const levels = [data];
+      path.forEach(node => levels.push(node.children));
+      levels.forEach((items, idx) => {
+        const isAncestor = idx < levels.length - 1;
+        const isBottom = !isAncestor;
+        // Determine layout: root uses data[0].layout, others use parent layout
+        const layout = idx === 0 ? data[0].layout : path[idx - 1].layout;
+        const lvl = document.createElement('div');
+        lvl.classList.add('level', layout);
+        if (isAncestor) lvl.classList.add('ancestor'); else lvl.classList.add('bottom');
+        items.forEach(item => lvl.appendChild(createContainer(item)));
+        app.appendChild(lvl);
       });
     }
 
-    // Initial render
-    render(data);
+    render();
   </script>
 </body>
 </html>
