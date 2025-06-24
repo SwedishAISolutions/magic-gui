@@ -43,7 +43,6 @@
     .box:hover {
       background: rgba(0,0,0,0.05);
     }
-    /* Disable hover effect on non-clickable (leaf) boxes */
     .box.no-hover:hover {
       background: none;
     }
@@ -57,40 +56,40 @@
   <script>
     const DummyData1 = {
       nodes: [
-        { id: "Nav_1", fields: { label: "Nav_1", listDirection: "H", recursiveChildren: false } },
-        { id: "Nav_2", fields: { label: "Nav_2", listDirection: "H", recursiveChildren: false } },
-        { id: "Nav_3", fields: { label: "Nav_3", listDirection: "H", recursiveChildren: false } },
-        { id: "Nav_4", fields: { label: "Nav_4", listDirection: "H", recursiveChildren: false } },
-        { id: "Nav_5", fields: { label: "Nav_5", listDirection: "H", recursiveChildren: false } },
-        { id: "Nav_6", fields: { label: "Nav_6", listDirection: "H", recursiveChildren: false } },
-        { id: "Nav_7", fields: { label: "Nav_7", listDirection: "H", recursiveChildren: false } },
-        { id: "Nav_8", fields: { label: "Nav_8", listDirection: "H", recursiveChildren: false } },
-        { id: "Nav_9", fields: { label: "Nav_9", listDirection: "H", recursiveChildren: false } },
-        { id: "Kanban_1", fields: { label: "Kanban_1", listDirection: "V", recursiveChildren: false } },
-        { id: "Kanban_2", fields: { label: "Kanban_2", listDirection: "V", recursiveChildren: false } },
-        { id: "Kanban_3", fields: { label: "Kanban_3", listDirection: "V", recursiveChildren: false } },
-        { id: "Kanban_4", fields: { label: "Kanban_4", listDirection: "V", recursiveChildren: false } },
-        { id: "Kanban_5", fields: { label: "Kanban_5", listDirection: "V", recursiveChildren: false } },
-        { id: "Tender_1", fields: { label: "Tender_1", listDirection: "H", recursiveChildren: false } },
-        { id: "Tender_2", fields: { label: "Tender_2", listDirection: "H", recursiveChildren: false } },
-        { id: "Tender_3", fields: { label: "Tender_3", listDirection: "H", recursiveChildren: false } },
-        { id: "Tender_4", fields: { label: "Tender_4", listDirection: "H", recursiveChildren: false } },
-        { id: "Tender_5", fields: { label: "Tender_5", listDirection: "H", recursiveChildren: false } },
-        { id: "Tender_6", fields: { label: "Tender_6", listDirection: "H", recursiveChildren: false } },
-        { id: "Tender_7", fields: { label: "Tender_7", listDirection: "H", recursiveChildren: false } },
-        { id: "Tender_8", fields: { label: "Tender_8", listDirection: "H", recursiveChildren: false } },
-        { id: "Tender_9", fields: { label: "Tender_9", listDirection: "H", recursiveChildren: false } },
-        { id: "Tender_10", fields: { label: "Tender_10", listDirection: "H", recursiveChildren: false } },
-        { id: "Tender_11", fields: { label: "Tender_11", listDirection: "H", recursiveChildren: false } },
-        { id: "Tender_12", fields: { label: "Tender_12", listDirection: "H", recursiveChildren: false } },
-        { id: "Not started", fields: { label: "Not started", listDirection: "V", recursiveChildren: false } },
-        { id: "Authoring", fields: { label: "Authoring", listDirection: "V", recursiveChildren: false } },
-        { id: "Review", fields: { label: "Review", listDirection: "V", recursiveChildren: false } },
-        { id: "Submitted", fields: { label: "Submitted", listDirection: "V", recursiveChildren: false } },
-        { id: "Project ABC", fields: { label: "Project ABC", listDirection: "H", recursiveChildren: false } },
-        { id: "Project DEF", fields: { label: "Project DEF", listDirection: "H", recursiveChildren: false } },
-        { id: "Project GHI", fields: { label: "Project GHI", listDirection: "H", recursiveChildren: false } },
-        { id: "Project JKL", fields: { label: "Project JKL", listDirection: "H", recursiveChildren: false } }
+        { id: "Nav_1", fields: { label: "Nav_1", listDirection: "H", recursiveChildren: false, alwaysRender: false } },
+        { id: "Nav_2", fields: { label: "Nav_2", listDirection: "H", recursiveChildren: false, alwaysRender: false } },
+        { id: "Nav_3", fields: { label: "Nav_3", listDirection: "H", recursiveChildren: false, alwaysRender: false } },
+        { id: "Nav_4", fields: { label: "Nav_4", listDirection: "H", recursiveChildren: false, alwaysRender: false } },
+        { id: "Nav_5", fields: { label: "Nav_5", listDirection: "H", recursiveChildren: false, alwaysRender: false } },
+        { id: "Nav_6", fields: { label: "Nav_6", listDirection: "H", recursiveChildren: false, alwaysRender: false } },
+        { id: "Nav_7", fields: { label: "Nav_7", listDirection: "H", recursiveChildren: false, alwaysRender: false } },
+        { id: "Nav_8", fields: { label: "Nav_8", listDirection: "H", recursiveChildren: false, alwaysRender: false } },
+        { id: "Nav_9", fields: { label: "Nav_9", listDirection: "H", recursiveChildren: false, alwaysRender: false } },
+        { id: "Kanban_1", fields: { label: "Kanban_1", listDirection: "V", recursiveChildren: false, alwaysRender: false } },
+        { id: "Kanban_2", fields: { label: "Kanban_2", listDirection: "V", recursiveChildren: false, alwaysRender: false } },
+        { id: "Kanban_3", fields: { label: "Kanban_3", listDirection: "V", recursiveChildren: false, alwaysRender: false } },
+        { id: "Kanban_4", fields: { label: "Kanban_4", listDirection: "V", recursiveChildren: false, alwaysRender: false } },
+        { id: "Kanban_5", fields: { label: "Kanban_5", listDirection: "V", recursiveChildren: false, alwaysRender: false } },
+        { id: "Tender_1", fields: { label: "Tender_1", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Tender_2", fields: { label: "Tender_2", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Tender_3", fields: { label: "Tender_3", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Tender_4", fields: { label: "Tender_4", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Tender_5", fields: { label: "Tender_5", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Tender_6", fields: { label: "Tender_6", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Tender_7", fields: { label: "Tender_7", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Tender_8", fields: { label: "Tender_8", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Tender_9", fields: { label: "Tender_9", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Tender_10", fields: { label: "Tender_10", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Tender_11", fields: { label: "Tender_11", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Tender_12", fields: { label: "Tender_12", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Not started", fields: { label: "Not started", listDirection: "V", recursiveChildren: false, alwaysRender: false } },
+        { id: "Authoring", fields: { label: "Authoring", listDirection: "V", recursiveChildren: false, alwaysRender: false } },
+        { id: "Review", fields: { label: "Review", listDirection: "V", recursiveChildren: false, alwaysRender: false } },
+        { id: "Submitted", fields: { label: "Submitted", listDirection: "V", recursiveChildren: false, alwaysRender: false } },
+        { id: "Project ABC", fields: { label: "Project ABC", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Project DEF", fields: { label: "Project DEF", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Project GHI", fields: { label: "Project GHI", listDirection: "H", recursiveChildren: false, alwaysRender: true } },
+        { id: "Project JKL", fields: { label: "Project JKL", listDirection: "H", recursiveChildren: false, alwaysRender: true } }
       ],
       edges: [
         { parent: "Nav_1", child: "Kanban_1" },
@@ -120,6 +119,8 @@
         { parent: "Authoring", child: "Project JKL" }
       ]
     };
+
+    // Build lookup
     const nodesById = new Map();
     DummyData1.nodes.forEach(n => nodesById.set(n.id, { ...n, children: [], parents: [] }));
     DummyData1.edges.forEach(e => {
@@ -127,12 +128,15 @@
       const c = nodesById.get(e.child);
       if (p && c) { p.children.push(c); c.parents.push(p); }
     });
+
     const rootNodes = Array.from(nodesById.values()).filter(n => n.parents.length === 0);
     let selectedNode = null;
     const app = document.getElementById('app');
+
     function renderAll() {
       app.innerHTML = '';
       const levels = [];
+
       if (selectedNode) {
         const ancestors = [];
         let cur = selectedNode;
@@ -151,9 +155,12 @@
       } else {
         levels.push({ nodes: rootNodes, parent: null });
       }
+
       const levelDivs = [];
       levels.forEach((lvlData, idx) => {
-        const { nodes, parent } = lvlData;
+        let { nodes, parent } = lvlData;
+        // filter out leaves when alwaysRender is false
+        nodes = nodes.filter(n => n.children.length > 0 || n.fields.alwaysRender);
         const dir = parent?.fields.listDirection || 'H';
         const lvl = document.createElement('div');
         lvl.className = 'level-container';
@@ -167,6 +174,7 @@
         }
         lvl.style.overflowX = dir === 'H' ? 'auto' : 'hidden';
         lvl.style.overflowY = dir === 'V' ? 'auto' : 'hidden';
+
         nodes.forEach(node => {
           const box = document.createElement('div');
           box.className = 'box';
@@ -180,9 +188,11 @@
           }
           lvl.appendChild(box);
         });
+
         levelDivs.push({ div: lvl, parent });
         app.appendChild(lvl);
       });
+
       levelDivs.forEach((lvlObj, idx) => {
         const { div, parent } = lvlObj;
         if (parent && idx > 0) {
@@ -192,6 +202,7 @@
         }
       });
     }
+
     window.addEventListener('DOMContentLoaded', () => renderAll());
   </script>
 </body>
