@@ -1,4 +1,4 @@
-import { DummyData1 } from "dummyData1.js";
+import { DummyData1 } from "./dummyData1.js";
 
 // Build lookup
 const nodesById = new Map();
